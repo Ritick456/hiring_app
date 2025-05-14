@@ -26,15 +26,6 @@ public class CandidateDocumentService {
 
     private static final String UPLOAD_DIR = "uploads/documents";
 
-    /**
-     * Uploads a document for a specific candidate.
-     *
-     * @param id            Candidate ID
-     * @param file          Multipart file to upload
-     * @param documentType  Type of the document (e.g., PAN, Aadhar)
-     * @return Saved CandidateDocument
-     * @throws IOException if file cannot be saved
-     */
     public CandidateDocument uploadDocument(Long id, MultipartFile file, String documentType) throws IOException {
         Candidate candidate = candidateRepository.findById(id)
                 .orElseThrow(() -> new CandidateNotFoundException("Candidate not found with ID: " + id));
@@ -62,6 +53,7 @@ public class CandidateDocumentService {
 
         // Save metadata in database
         CandidateDocument document = new CandidateDocument();
+
         document.setCandidate(candidate);
         document.setDocumentType(documentType);
         document.setFileUrl(filePath);

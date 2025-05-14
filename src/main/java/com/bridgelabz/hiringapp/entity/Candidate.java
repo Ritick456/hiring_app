@@ -69,9 +69,6 @@ public class Candidate {
     private List<JobOfferNotification> jobOfferNotificationList;
 
 
-
-
-
    public Candidate(CandidateDto candidateDto){
         this.firstName = candidateDto.getFirstName();
         this.lastName = candidateDto.getLastName();

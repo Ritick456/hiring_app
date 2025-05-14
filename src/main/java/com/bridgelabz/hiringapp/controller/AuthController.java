@@ -22,23 +22,38 @@ public class AuthController {
 
     private final AuthService authService;
 
-    @PostMapping("/register")
-    public ResponseEntity<ApiSuccessResponseDto> register(HttpServletRequest request, @RequestBody RegisterDto requestdto) {
+    @PostMapping("/register/send-otp")
+    public String register(HttpServletRequest request, @RequestBody EmailDto emailDto) {
+
+        authService.sendOtpForRegister(emailDto.getEmail());
+
+//        String msg = authService.register(requestdto);
+//        return ResponseBuilder.success(null,msg,request.getRequestURI());
+        return "Mail Sent Successfully";
+    }
+
+    @PostMapping("/register/verify-registered")
+    public ResponseEntity<ApiSuccessResponseDto> registeredVerify(HttpServletRequest request, @RequestBody RegisterDto requestdto) {
+
         String msg = authService.register(requestdto);
+
         return ResponseBuilder.success(null,msg,request.getRequestURI());
+
     }
 
     @PostMapping("/login")
     public ResponseEntity<ApiSuccessResponseDto> login(HttpServletRequest request,@RequestBody LoginDto requestdto) {
+
         Map<String, String > data =authService.login(requestdto);
+
         return ResponseBuilder.success(data,"Token generated", request.getRequestURI());
     }
 
 
     @PostMapping("/forgot-password")
-    public String forgotPassword(@RequestBody ForgotPasswordRequest request){
+    public String forgotPassword(@RequestBody EmailDto request){
 
-        authService.sendOtp(request.getEmail());
+        authService.sendOtpForLogin(request.getEmail());
 
         return "Mail Sent Successfully";
     }

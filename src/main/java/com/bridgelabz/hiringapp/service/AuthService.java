@@ -47,14 +47,28 @@ public class  AuthService {
     private Map<String , String> otpStore = new HashMap<>();
 
     public String register(RegisterDto request) {
+
+        String otpStoreOtp = otpStore.get(request.getEmail());
+
+        if (otpStoreOtp == null) {
+            return "Please request a new one.";
+        }
+
+        if (!request.getOtp().equals(otpStoreOtp)) {
+            return "Invalid OTP";
+        }
+
+
         User user = User.builder()
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(request.getRole())
                 .build();
         userRepository.save(user);
+        user.setVarified(true);
 
         return "User registered successfully" ;
+
     }
 
     public Map<String, String> login(LoginDto request) {
@@ -68,7 +82,7 @@ public class  AuthService {
         return Map.of("token", jwt);
     }
 
-    public void sendOtp(String email){
+    public void sendOtpForLogin(String email){
 
         Optional<User> user = Optional.ofNullable(userRepository.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("Email not found")));
@@ -85,7 +99,22 @@ public class  AuthService {
 
     }
 
+    public void sendOtpForRegister(String email){
+
+        String otp = String.valueOf(new Random().nextInt(999999));
+        otpStore.put(email, otp); // Store with expiry logic ideally
+
+        EmailRequestDto emailRequestDto1 = new EmailRequestDto();
+        emailRequestDto1.setTo(email);
+        emailRequestDto1.setBody(otp);
+        emailRequestDto1.setSubject("Otp For Verification");
+
+        rabbitTemplate.convertAndSend("job.otp.exchange", "job.otp.notification", emailRequestDto1);
+
+    }
+
     public String verify(VerifyDto dto) {
+
         Optional<User> userOpt = userRepository.findByEmail(dto.getEmail());
 
         if (userOpt.isEmpty()) {

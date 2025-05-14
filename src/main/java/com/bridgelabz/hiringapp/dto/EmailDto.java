@@ -8,11 +8,9 @@ import lombok.Data;
 
 
 @Data
-@Entity
-public class ForgotPasswordRequest {
+public class EmailDto {
 
-    @Id
-    private Long id;
     @Email
     private String email;
+
 }
