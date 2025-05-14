@@ -46,4 +46,18 @@ public class EmailSenderService {
             notificationRepo.save(notification);
         }
     }
+
+
+    @RabbitListener(queues = "otp.notification.queue")
+    public void otpEmail(EmailRequestDto request) {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setTo(request.getTo());
+            message.setSubject(request.getSubject());
+            message.setText(request.getBody());
+
+            mailSender.send(message);
+
+
+
+    }
 }

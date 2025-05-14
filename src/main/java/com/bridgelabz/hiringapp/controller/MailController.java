@@ -6,16 +6,18 @@ import com.bridgelabz.hiringapp.service.JobOfferNotificationService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/mail")
+@RequestMapping("/candidates")
 public class MailController {
 
     @Autowired
     private JobOfferNotificationService notificationService;
 
     @PostMapping("/job-offer")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> sendJobOfferMail(@RequestBody EmailRequestDto emailDto, HttpServletRequest request) {
         try {
             notificationService.sendJobOfferEmail(emailDto);

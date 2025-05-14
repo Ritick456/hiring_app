@@ -1,9 +1,9 @@
 package com.bridgelabz.hiringapp.service;
 
-
 import com.bridgelabz.hiringapp.dto.CandidateEducationDto;
 import com.bridgelabz.hiringapp.entity.Candidate;
 import com.bridgelabz.hiringapp.entity.CandidateEducation;
+import com.bridgelabz.hiringapp.exception.CandidateNotFoundException;
 import com.bridgelabz.hiringapp.repository.CandidateRepository;
 import com.bridgelabz.hiringapp.repository.EducationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,25 +15,26 @@ import java.util.Optional;
 public class EducationService {
 
     @Autowired
-    private EducationRepository educationRepository;
-
-    @Autowired
     private CandidateRepository candidateRepository;
 
-    public CandidateEducation addEducation(Long id , CandidateEducationDto dto){
+    @Autowired
+    private EducationRepository educationRepository;
 
-        Optional<Candidate> candidate = candidateRepository.findById(id);
-        Candidate candidate1 = candidate.get();
-        CandidateEducation candidateEducation = new CandidateEducation();
+    public CandidateEducation addOrUpdateEducation(Long candidateId, CandidateEducationDto dto) {
+        Candidate candidate = candidateRepository.findById(candidateId)
+                .orElseThrow(() -> new CandidateNotFoundException("Candidate not found with ID: " + candidateId));
 
-        candidateEducation.setCandidate(candidate.get());
-        candidateEducation.setInstitution(dto.getInstitution());
-        candidateEducation.setDegree(dto.getDegree());
-        candidateEducation.setYearOfPassing(dto.getYearOfPassing());
+        CandidateEducation education = Optional.ofNullable(candidate.getEducation())
+                .orElse(new CandidateEducation());
 
-        candidate1.setEducation(candidateEducation);
-        candidateRepository.save(candidate1);
+        education.setCandidate(candidate);
+        education.setDegree(dto.getDegree());
+        education.setInstitution(dto.getInstitution());
+        education.setYearOfPassing(dto.getYearOfPassing());
 
-        return educationRepository.save(candidateEducation);
+        candidate.setEducation(education);
+        candidateRepository.save(candidate);
+
+        return educationRepository.save(education);
     }
 }

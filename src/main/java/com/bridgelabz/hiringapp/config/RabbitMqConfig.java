@@ -60,4 +60,22 @@ public class RabbitMqConfig {
     }
 
 
+    @Bean
+    public Queue otpNotificationQueue() {
+        return QueueBuilder.durable("otp.notification.queue").build();
+    }
+
+
+    @Bean
+    public DirectExchange otpExchange() {
+        return new DirectExchange("job.otp.exchange");
+    }
+
+    @Bean
+    public Binding otpBinding(Queue otpNotificationQueue, DirectExchange otpExchange) {
+        return BindingBuilder.bind(otpNotificationQueue)
+                .to(otpExchange)
+                .with("job.otp.notification");
+    }
+
 }

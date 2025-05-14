@@ -1,5 +1,6 @@
 package com.bridgelabz.hiringapp.dto;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 @Getter
@@ -9,11 +10,12 @@ import lombok.*;
 @Builder
 public class CandidateBankInfoDto {
 
-    private Long candidateId;
-
+    @NotBlank
     private String bankName;
 
+    @NotBlank
     private String accountNumber;
 
+    @NotBlank
     private String ifscCode;
 }

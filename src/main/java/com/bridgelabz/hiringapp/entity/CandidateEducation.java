@@ -21,8 +21,6 @@ public class CandidateEducation {
     private Candidate candidate;
 
     private String degree;
-
     private String institution;
-
     private Integer yearOfPassing;
 }

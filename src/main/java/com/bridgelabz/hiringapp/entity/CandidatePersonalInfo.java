@@ -22,9 +22,7 @@ public class CandidatePersonalInfo {
     @OneToOne(mappedBy = "candidatePersonalInfo")
     private Candidate candidate;
 
-    private LocalDate dob;
-
-    private String gender;
+    private String  dob;
 
     @Column(columnDefinition = "TEXT")
     private String address;

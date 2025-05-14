@@ -5,9 +5,12 @@ import com.bridgelabz.hiringapp.entity.Candidate;
 import com.bridgelabz.hiringapp.service.CandidateService;
 import com.bridgelabz.hiringapp.utils.ResponseBuilder;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -22,37 +25,41 @@ public class CandidateController {
     private CandidateService candidateService;
 
     @PostMapping("/create")
-    public ResponseEntity<ApiSuccessResponseDto> createCandidate(HttpServletRequest req, @RequestBody CandidateDto candidateDto){
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    public ResponseEntity<ApiSuccessResponseDto> createCandidate(HttpServletRequest req, @RequestBody @Valid CandidateDto candidateDto){
 
         Candidate candidate = candidateService.createCandidate(candidateDto);
 
-        ApiSuccessResponseDto res = ApiSuccessResponseDto.builder()
+        ApiSuccessResponseDto response = ApiSuccessResponseDto.builder()
                 .path(req.getRequestURI())
                 .data(candidate)
                 .message("User Created")
                 .timestamp(LocalDateTime.now())
                 .build();
 
-        return ResponseEntity.ok(res);
+        return ResponseBuilder.success(response , req.getRequestURI(), "created user");
 
     }
 
     @GetMapping("/getall")
-    public ResponseEntity<ApiSuccessResponseDto> getAllCandidate(HttpServletRequest req){
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiSuccessResponseDto> getAllCandidate(  @RequestParam(defaultValue = "0") int page,
+                                                                   @RequestParam(defaultValue = "10") int size,  HttpServletRequest req){
 
-        List<Candidate> list = candidateService.getAllCandidate();
+        Page<Candidate> candidatePage = (Page<Candidate>) candidateService.getAllCandidate(page , size);
 
         ApiSuccessResponseDto response = ApiSuccessResponseDto.builder()
                 .message("Candidates fetched successfully")
-                .data(list)
+                .data(candidatePage.getContent())
                 .path(req.getRequestURI())
                 .timestamp(LocalDateTime.now())
                 .build();
 
-        return ResponseEntity.ok(response);
+        return ResponseBuilder.success(response , req.getRequestURI(), "fetching all candidates");
     }
 
     @GetMapping("/getbyid/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<ApiSuccessResponseDto> getCandidateById(HttpServletRequest req, @PathVariable Long id){
 
         Optional<Candidate> optionalCandidate = candidateService.getCandidateById(id);
@@ -64,6 +71,7 @@ public class CandidateController {
     }
 
     @GetMapping("getcount")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiSuccessResponseDto> getNumberOfCandidates(HttpServletRequest req){
 
         Integer count = candidateService.getCount();
@@ -73,6 +81,7 @@ public class CandidateController {
     }
 
     @GetMapping("/gethired")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<ApiSuccessResponseDto> getHiredCandidates(HttpServletRequest req){
 
         List<Candidate> list = candidateService.getHiredCandidate(Candidate.CandidateStatus.ONBOARDED);
@@ -82,6 +91,8 @@ public class CandidateController {
     }
 
     @PutMapping("/status/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+
     public ResponseEntity<ApiSuccessResponseDto> updateStatus(HttpServletRequest req, @PathVariable Long id , @RequestBody CandidateStatusDto candidateStatusDto){
 
         Optional<Candidate> optionalCandidate = Optional.ofNullable(candidateService.updateStatus(id , candidateStatusDto));
@@ -92,6 +103,8 @@ public class CandidateController {
     }
 
     @PutMapping("/onboardstatus/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+
     public ResponseEntity<ApiSuccessResponseDto> updateOnboardStatus(HttpServletRequest req, @PathVariable Long id , @RequestBody CandidateOnboardedStatusDto candidateOnboardedStatusDto){
 
         Optional<Candidate> optionalCandidate = Optional.ofNullable(candidateService.updateOnboardStatus(id , candidateOnboardedStatusDto));
@@ -99,6 +112,15 @@ public class CandidateController {
         Candidate candidate = optionalCandidate.get();
 
         return ResponseBuilder.success(candidate , req.getRequestURI() , "Updated Onboaredstatus successfully");
+
+    }
+
+
+    @DeleteMapping("/delete/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public String deleteCandidate(@PathVariable Long id){
+
+        return candidateService.deleteCandidate(id);
 
     }
 

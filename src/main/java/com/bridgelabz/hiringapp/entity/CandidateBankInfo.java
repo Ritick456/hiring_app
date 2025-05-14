@@ -1,6 +1,5 @@
 package com.bridgelabz.hiringapp.entity;
 
-import com.bridgelabz.hiringapp.entity.Candidate;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
@@ -17,13 +16,11 @@ public class CandidateBankInfo {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private String bankName;
+    private String accountNumber;
+    private String ifscCode;
+
     @JsonBackReference
     @OneToOne(mappedBy = "candidateBankInfo")
     private Candidate candidate;
-
-    private String bankName;
-
-    private String accountNumber;
-
-    private String ifscCode;
 }

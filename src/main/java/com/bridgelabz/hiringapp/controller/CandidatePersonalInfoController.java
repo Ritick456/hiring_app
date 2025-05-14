@@ -7,21 +7,25 @@ import com.bridgelabz.hiringapp.dto.CandidatePersonalInfoDto;
 import com.bridgelabz.hiringapp.entity.CandidateBankInfo;
 import com.bridgelabz.hiringapp.entity.CandidatePersonalInfo;
 import com.bridgelabz.hiringapp.service.PersonalInfoService;
+import com.bridgelabz.hiringapp.utils.ResponseBuilder;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 
 @RestController
-@RequestMapping("/personal")
+@RequestMapping("/candidates")
 public class CandidatePersonalInfoController {
 
     @Autowired
     private PersonalInfoService personalInfoService;
 
+
     @PutMapping("/{id}/personal-info")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<ApiSuccessResponseDto> putBankInfo(HttpServletRequest req , @PathVariable Long id , @RequestBody CandidatePersonalInfoDto candidatePersonalInfoDto){
 
         CandidatePersonalInfo candidatePersonalInfo = personalInfoService.putPersonalInfo(id , candidatePersonalInfoDto);
@@ -33,7 +37,7 @@ public class CandidatePersonalInfoController {
                 .timestamp(LocalDateTime.now())
                 .build();
 
-        return ResponseEntity.ok(res);
+        return ResponseBuilder.success(res , req.getRequestURI(), "Updated Candidate Personal Info");
 
     }
 

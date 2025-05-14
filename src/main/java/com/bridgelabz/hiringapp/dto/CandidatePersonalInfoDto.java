@@ -11,11 +11,7 @@ import java.time.LocalDate;
 @Builder
 public class CandidatePersonalInfoDto {
 
-    private Long candidateId; // used to link to Candidate
-
-    private LocalDate dob;
-
-    private String gender;
+    private String dob;
 
     private String address;
 
